@@ -58,6 +58,11 @@ def CreateResponse(isSuccess, content):
     })
 
 
+@app.route('/', methods=['GET'])
+def root():
+    return CreateResponse(False, {"code": 404, "description": "Please use GET /predict with parameters to predict the classification"})
+
+
 @app.route('/predict', methods=['GET'])
 def predict():
     try:
@@ -78,7 +83,7 @@ def predict():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    return 'You want path: %s' % path
+    return CreateResponse(False, {"code": 404, "description": "Only /predict is available"})
 
 
 if __name__ == '__main__':

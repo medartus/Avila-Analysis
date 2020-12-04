@@ -25,12 +25,8 @@ with open('model.pickle', 'rb') as handle:
 
 
 def CreateArray(args, columns):
-    # arr = np.array([0.364825, -0.189174, 0.502357, 0.223290, -
-    #                 1.168333, -3.837595, 0.069175, 0.534971, -2.149801, -3.417834])
-    # return (True, arr.reshape(1, -1))
     arr = []
     for index, columnName in enumerate(columns):
-        value = 'plop'
         value = request.args.get(f'F{index}')
         if not value:
             value = request.args.get(columns[index])
@@ -38,6 +34,11 @@ def CreateArray(args, columns):
             arr.append(value)
         else:
             return (False, {"code": 400, "description": f"You need to specify a value for F{index} or {columnName}"})
+
+    # NE PAS OUBLIER DE CREER LES NOUVELLES COLONNES (Nico doit le faire)
+    # df['spacing_ratio'] = df['intercolumnar_dist'] / \(df['upper_mrg'] + df['lower_mrg'])
+    # df['mrg_ratio'] = df['upper_mrg'] / df['lower_mrg']
+
     npArr = np.array(arr)
     return (True, npArr.reshape(1, -1))
 

@@ -1,4 +1,5 @@
 import flask
+import collections
 from flask import request, jsonify
 import pickle
 import numpy as np
@@ -19,27 +20,28 @@ DATASET_COLUMNS = [
     'peak_num',
     'modular/spacing'
 ]
+FINAl_COLUMNS = DATASET_COLUMNS + ['spacing_ratio', 'mrg_ratio']
 
 with open('model.pickle', 'rb') as handle:
     model = pickle.load(handle)
 
 
 def CreateArray(args, columns):
-    arr = []
+    dic = collections.OrderedDict()
     for index, columnName in enumerate(columns):
         value = request.args.get(f'F{index}')
         if not value:
-            value = request.args.get(columns[index])
+            value = request.args.get(columnName)
         if value:
-            arr.append(value)
+            dic[columnName] = float(value)
         else:
             return (False, {"code": 400, "description": f"You need to specify a value for F{index} or {columnName}"})
 
-    # NE PAS OUBLIER DE CREER LES NOUVELLES COLONNES (Nico doit le faire)
-    # df['spacing_ratio'] = df['intercolumnar_dist'] / \(df['upper_mrg'] + df['lower_mrg'])
-    # df['mrg_ratio'] = df['upper_mrg'] / df['lower_mrg']
+    dic['spacing_ratio'] = dic['intercolumnar_dist'] / \
+        (dic['upper_mrg'] + dic['lower_mrg'])
+    dic['mrg_ratio'] = dic['upper_mrg'] / dic['lower_mrg']
 
-    npArr = np.array(arr)
+    npArr = np.array(list(dic.values()))
     return (True, npArr.reshape(1, -1))
 
 
@@ -72,7 +74,7 @@ def predict():
             return CreateResponse(False, result)
         responseContent = {}
         responseContent["class"] = model.predict(result)[0]
-        for index, columnName in enumerate(DATASET_COLUMNS):
+        for index, columnName in enumerate(FINAl_COLUMNS):
             responseContent[columnName] = result[0][index]
 
         return CreateResponse(True, responseContent)
@@ -84,7 +86,7 @@ def predict():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    return CreateResponse(False, {"code": 404, "description": "Only /predict is available"})
+    return CreateResponse(False, {"code": 404, "description": "Only GET /predict is available"})
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ import collections
 from flask import request, jsonify
 import pickle
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -22,7 +22,7 @@ DATASET_COLUMNS = [
 ]
 FINAl_COLUMNS = DATASET_COLUMNS + ['spacing_ratio', 'mrg_ratio']
 
-with open('model.pickle', 'rb') as handle:
+with open('./api/model.pickle', 'rb') as handle:
     model = pickle.load(handle)
 
 

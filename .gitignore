@@ -129,3 +129,7 @@ dmypy.json
 .pyre/
 
 .docx
+
+.vscode/
+*.pdf
+*.docx

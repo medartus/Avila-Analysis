@@ -25,6 +25,8 @@ FINAl_COLUMNS = DATASET_COLUMNS + ['spacing_ratio', 'mrg_ratio']
 with open('./api/model.pickle', 'rb') as handle:
     model = pickle.load(handle)
 
+with open('./api/scaler.pickle', 'rb') as handle:
+    scaler = pickle.load(handle)
 
 def CreateArray(args, columns):
     dic = collections.OrderedDict()
@@ -72,8 +74,9 @@ def predict():
         hasAllParameters, result = CreateArray(request.args, DATASET_COLUMNS)
         if not hasAllParameters:
             return CreateResponse(False, result)
+        scaledResult = scaler.transform(result)
         responseContent = {}
-        responseContent["class"] = model.predict(result)[0]
+        responseContent["class"] = model.predict(scaledResult)[0]
         for index, columnName in enumerate(FINAl_COLUMNS):
             responseContent[columnName] = result[0][index]
 
